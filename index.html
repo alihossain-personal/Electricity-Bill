@@ -330,6 +330,49 @@
   .cloud-status[data-st="ok"]{color:var(--ok)}
   .cloud-status[data-st="err"]{color:var(--bad)}
   .cloud-status[data-st="busy"]{color:var(--amber)}
+
+  /* ---------- Cash counter ---------- */
+  .nav{grid-template-columns:repeat(4,1fr)}
+  body[data-tab="cash"] .monthbar,body[data-tab="cash"] #searchToggle,body[data-tab="cash"] #syncBtn,body[data-tab="cash"] #fabAdd{display:none}
+  body[data-tab="cash"] .header{padding-bottom:30px}
+  body[data-tab="cash"] .main{padding-top:14px}
+  .cc-grid{display:grid;grid-template-columns:62px 18px 1fr 18px 86px;align-items:center;gap:6px}
+  .cc-head{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.3px;padding:0 2px 8px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .cc-head span:last-child,.cc-amt{text-align:right}
+  .cc-den{font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
+  .cc-x,.cc-eq{color:var(--muted);text-align:center;font-weight:700}
+  .cc-in{height:42px;border-radius:11px;text-align:center;font-weight:800;font-size:16px;padding:0 6px}
+  .cc-amt{font-weight:800;font-variant-numeric:tabular-nums;color:var(--text-2);font-size:15px}
+  .cc-amt.on{color:var(--brand)}
+  .cc-total{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:14px 4px 6px;border-top:1px dashed var(--line);font-weight:800}
+  .cc-total .n{color:var(--amber);font-size:15px}
+  .cc-total .a{color:var(--brand);font-size:22px;font-variant-numeric:tabular-nums}
+  .cc-words{font-size:12px;color:var(--muted);padding:0 4px 8px;font-weight:600}
+  .cc-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 12px}
+  .cc-btns .btn{height:46px;font-size:14px}
+  .cc-saved{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+  .cc-saved:first-of-type{border-top:0}
+  .cc-saved .i{flex:1;min-width:0}
+  .cc-saved .i b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cc-saved .i small{color:var(--muted);font-size:11px}
+  .cc-saved .v{font-weight:800;color:var(--brand);font-size:15px;font-variant-numeric:tabular-nums}
+  .cc-saved button{width:36px;height:36px;border-radius:10px;background:var(--soft);color:var(--text-2);font-weight:800;flex:none}
+  .cc-saved button.del{color:var(--bad)}
+
+  /* ---------- Sticky header + back/forward ---------- */
+  .header{--hpb:62px;padding-bottom:var(--hpb);position:sticky;top:calc(-1 * (var(--hpb) - 14px));z-index:50}
+  body[data-tab="cash"] .header{--hpb:30px;padding-bottom:var(--hpb)}
+  .monthbar{z-index:1}
+  .brand{min-width:0;flex:1;gap:9px}
+  .brand-t{font-size:15px;line-height:1.15;min-width:0}
+  .hdr-actions{flex:none;gap:6px;align-items:center}
+  .header .btn-sync{width:36px;height:36px;border-radius:11px}
+  .navpair{display:flex;height:36px;border-radius:11px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);overflow:hidden}
+  .navpair button{width:32px;display:grid;place-items:center;color:#fff}
+  .navpair button+button{border-left:1px solid rgba(255,255,255,.12)}
+  .navpair button svg{width:18px;height:18px}
+  .navpair button:active:not(:disabled){background:rgba(255,255,255,.2)}
+  .navpair button:disabled{opacity:.35}
 </style>
 </head>
 <body>
@@ -340,9 +383,13 @@
       <div class="logo">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
       </div>
-      Smart Bill Management
+      <span class="brand-t">Smart Bill Management</span>
     </div>
     <div class="hdr-actions">
+      <div class="navpair" role="group" aria-label="History navigation">
+        <button id="navBack" aria-label="Go back" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button id="navFwd" aria-label="Go forward" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
       <button class="btn-sync" id="searchToggle" aria-label="Search customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
       <button class="btn-sync" id="syncBtn" aria-label="Sync from previous month">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
@@ -424,23 +471,24 @@
         </div>
         <div class="row total"><span>Result</span><b id="sProfit">৳0</b></div>
       </div>
+    </section>
 
-      <div class="sum-card">
-        <h3>Google Sheet sync</h3>
-        <div class="field" style="margin:12px 0 10px">
-          <label for="cfgUrl">Web App URL</label>
-          <input class="input" type="url" id="cfgUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <!-- Cash counter view -->
+    <section id="view-cash" class="view" hidden>
+      <div class="sum-card" style="padding:16px 16px 14px">
+        <div class="cc-grid cc-head"><span>NOTE / COIN</span><span></span><span style="text-align:center">COUNT</span><span></span><span>AMOUNT</span></div>
+        <div id="ccRows" style="display:grid;gap:8px"></div>
+        <div class="cc-total"><span class="n"><span id="ccPieces">0</span> pcs</span><span class="a" id="ccTotal">৳0</span></div>
+        <div class="cc-words" id="ccWords"></div>
+        <div class="cc-btns">
+          <button class="btn btn-primary" id="ccSave">Save</button>
+          <button class="btn btn-cancel" id="ccShare">Share</button>
+          <button class="btn btn-cancel" id="ccClear">Clear</button>
         </div>
-        <div class="field" style="margin-bottom:12px">
-          <label for="cfgKey">Secret key (if you set one)</label>
-          <input class="input" type="password" id="cfgKey" placeholder="Optional" autocomplete="off">
-        </div>
-        <div class="btns" style="margin-top:0">
-          <button class="btn btn-primary" id="cfgSave">Save &amp; connect</button>
-          <button class="btn btn-cancel" id="cfgUpload">Upload all data</button>
-        </div>
-        <button class="btn btn-cancel" id="cfgPull" style="width:100%;margin-top:10px;height:46px;font-size:14px">Load this month from sheet</button>
-        <div class="cloud-status" id="cloudStatus">Not connected · data is saved on this device only</div>
+      </div>
+      <div class="sum-card" id="ccSavedCard" hidden>
+        <h3>Saved counts</h3>
+        <div id="ccSavedList"></div>
       </div>
     </section>
   </main>
@@ -457,6 +505,10 @@
     <button class="nav-item" data-tab="summary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
       <span>Summary</span>
+    </button>
+    <button class="nav-item" data-tab="cash">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+      <span>Cash</span>
     </button>
   </nav>
 </div>
@@ -551,6 +603,7 @@
       fixedCustomers: Array.isArray(d.fixedCustomers) ? d.fixedCustomers.map(f => ({
         name: String(f.name || ''),
         amount: num(f.amount),
+        advance: f.advance ?? '',
         status: f.status === 'paid' ? 'paid' : 'unpaid'
       })) : [],
       officialBill: num(d.officialBill)
@@ -566,7 +619,7 @@
   const CFG_KEY = 'meter_app_cfg';
   const dirtyKey = m => KEY + 'dirty_' + m;
   const readCfg = () => { try { return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch { return {}; } };
-  const cfg = () => { const c = readCfg(); return { url: String(c.url ?? DEFAULT_SHEET_URL).trim(), key: String(c.key || '').trim() }; };
+  const cfg = () => ({ url: DEFAULT_SHEET_URL, key: '' });
   const clock = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   function setCloud(st, msg) {
@@ -643,7 +696,7 @@
     if (!prev) return emptyData();
     return {
       customers: prev.customers.map(c => ({ name: c.name, rate: c.rate, prev: hasVal(c.pres) ? c.pres : c.prev, pres: '', advance: (() => { const left = num(c.advance) - calc(c).gross; return left > 0 ? fmt(left) : ''; })(), status: 'unpaid' })),
-      fixedCustomers: prev.fixedCustomers.map(f => ({ name: f.name, amount: f.amount, status: 'unpaid' })),
+      fixedCustomers: prev.fixedCustomers.map(f => ({ name: f.name, amount: f.amount, advance: (() => { const left = num(f.advance) - num(f.amount); return left > 0 ? fmt(left) : ''; })(), status: 'unpaid' })),
       officialBill: 0
     };
   }
@@ -687,6 +740,8 @@
     const gross = units * rate;
     return { units, gross, bill: Math.max(gross - num(c.advance), 0), bad: hasVal(c.pres) && r < p };
   }
+
+  const fixedBill = f => Math.max(num(f.amount) - num(f.advance), 0);
 
   const matches = name => {
     const q = state.search.trim().toLowerCase();
@@ -742,7 +797,7 @@
   function fixedCard(f, i) {
     const paid = f.status === 'paid';
     return `
-      <article class="cust">
+      <article class="cust" data-row="${i}">
         <div class="cust-head">
           <div class="cust-title">
             <button class="cust-name" data-act="edit" data-i="${i}" title="Tap to edit">${esc(f.name)}</button>
@@ -751,8 +806,9 @@
           <button class="pill ${paid ? 'paid' : 'unpaid'}" data-act="toggle" data-i="${i}" aria-pressed="${paid}">${paid ? 'Paid' : 'Unpaid'}</button>
         </div>
         <div class="cust-foot">
-          <span class="amt">${taka(f.amount)}</span>
-          <span class="muted">${paid ? 'Paid' : 'Outstanding'}</span>
+          <span class="chip units">Fixed ${taka(f.amount)}</span>
+          <input class="adv" type="number" inputmode="decimal" enterkeyhint="next" step="any" min="0" placeholder="Advance ৳" aria-label="Advance" data-field="advance" data-i="${i}" value="${esc(f.advance)}">
+          <span class="chip bill" data-f="bill">${taka(fixedBill(f))}</span>
         </div>
       </article>`;
   }
@@ -799,16 +855,22 @@
 
   function renderFixed() {
     const all = state.data.fixedCustomers;
-    let total = 0, due = 0, paidCount = 0;
-    all.forEach(f => {
-      total += f.amount;
-      if (f.status === 'paid') paidCount++; else due += f.amount;
-    });
     const items = all.map((f, i) => ({ f, i })).filter(x => matches(x.f.name));
     $('#fixedList').innerHTML = items.length
       ? items.map(x => fixedCard(x.f, x.i)).join('')
       : emptyState(all.length > 0, '<b>No fixed bill customers yet</b><br>Tap <b>Add</b> below to add one.');
     $('#fixedCount').textContent = `${all.length}`;
+    renderFixedTotals();
+  }
+
+  function renderFixedTotals() {
+    const all = state.data.fixedCustomers;
+    let total = 0, due = 0, paidCount = 0;
+    all.forEach(f => {
+      const b = fixedBill(f);
+      total += b;
+      if (f.status === 'paid') paidCount++; else due += b;
+    });
     $('#fTotal').textContent = taka(total);
     $('#fPaid').textContent = `${paidCount}/${all.length}`;
     $('#fDue').textContent = taka(due);
@@ -822,8 +884,9 @@
       if (c.status === 'paid') mPaid += b;
     });
     state.data.fixedCustomers.forEach(f => {
-      fBilled += f.amount;
-      if (f.status === 'paid') fPaid += f.amount;
+      const b = fixedBill(f);
+      fBilled += b;
+      if (f.status === 'paid') fPaid += b;
     });
 
     const billed = mBilled + fBilled;
@@ -860,7 +923,7 @@
       b.classList.toggle('active', on);
       if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     });
-    $('#tools').hidden = t === 'summary';
+    $('#tools').hidden = t === 'summary' || t === 'cash';
     document.body.dataset.tab = t;
     if (t === 'summary') renderSummary();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -957,13 +1020,13 @@
       state.data.customers.push({ name, rate: hasVal(rawRate) ? num(rawRate) : 20, prev: '', pres: '', advance: '', status: 'unpaid' });
       toast(`✅ ${name} added`);
     } else {
-      state.data.fixedCustomers.push({ name, amount: num(rawAmt), status: 'unpaid' });
+      state.data.fixedCustomers.push({ name, amount: num(rawAmt), advance: '', status: 'unpaid' });
       toast(`✅ ${name} added`);
     }
 
     saveCurrent();
     closeOverlay($('#ov-cust'));
-    switchTab(type);
+    go(type);
     renderAll();
   }
 
@@ -1019,7 +1082,24 @@
   $('#monthPicker').addEventListener('change', e => { if (e.target.value) loadMonth(e.target.value); });
 
   // Bottom nav
-  $$('.nav-item[data-tab]').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+  /* ---------- Back / forward navigation (like a phone) ---------- */
+  const TABS = ['meter', 'fixed', 'summary', 'cash'];
+  const H = { idx: 0, max: 0 };
+  const navUpdate = () => { $('#navBack').disabled = H.idx <= 0; $('#navFwd').disabled = H.idx >= H.max; };
+  function go(t) {
+    if (t === state.tab) return;
+    H.idx++; H.max = H.idx;
+    try { history.pushState({ idx: H.idx, tab: t }, '', '#' + t); } catch {}
+    switchTab(t); navUpdate();
+  }
+  window.addEventListener('popstate', e => {
+    $$('.overlay.open').forEach(closeOverlay);
+    const st = e.state;
+    if (st && TABS.includes(st.tab)) { H.idx = st.idx || 0; H.max = Math.max(H.max, H.idx); switchTab(st.tab); navUpdate(); }
+  });
+  $('#navBack').addEventListener('click', () => history.back());
+  $('#navFwd').addEventListener('click', () => history.forward());
+  $$('.nav-item[data-tab]').forEach(b => b.addEventListener('click', () => go(b.dataset.tab)));
   $('#fabAdd').addEventListener('click', () => openCust('add', state.tab === 'fixed' ? 'fixed' : 'meter'));
 
   // Sync + search
@@ -1075,6 +1155,29 @@
     }
   });
 
+  // Fixed list: advance typing + Enter-to-next
+  const fixedList = $('#fixedList');
+  fixedList.addEventListener('input', e => {
+    const el = e.target;
+    if (el.dataset.field !== 'advance') return;
+    const i = +el.dataset.i, f = state.data.fixedCustomers[i];
+    if (!f) return;
+    f.advance = el.value;
+    const card = fixedList.querySelector(`[data-row="${i}"]`);
+    if (card) card.querySelector('[data-f="bill"]').textContent = taka(fixedBill(f));
+    renderFixedTotals();
+    renderSummary();
+    saveCurrent();
+  });
+  fixedList.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.target.dataset.field !== 'advance') return;
+    e.preventDefault();
+    const all = [...fixedList.querySelectorAll('.adv')];
+    const next = all[all.indexOf(e.target) + 1];
+    if (next) { next.focus(); next.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    else e.target.blur();
+  });
+
   // Fixed list
   $('#fixedList').addEventListener('click', e => {
     const b = e.target.closest('[data-act]');
@@ -1120,43 +1223,113 @@
     if (e.key === 'Escape') $$('.overlay.open').forEach(closeOverlay);
   });
 
-  // Google Sheet settings
-  $('#cfgUrl').value = cfg().url;
-  $('#cfgKey').value = cfg().key;
-  $('#cfgSave').addEventListener('click', async () => {
-    const url = $('#cfgUrl').value.trim(), key = $('#cfgKey').value.trim();
-    try { localStorage.setItem(CFG_KEY, JSON.stringify({ url, key })); } catch {}
-    if (!url) { setCloud('', 'Not connected · data is saved on this device only'); return toast('Sheet sync turned off', 'warn'); }
-    await loadMonth(state.month);
-    if (document.body.dataset.cloud === 'ok') toast('✅ Connected to Google Sheet');
-    else toast('Could not connect', 'error');
-  });
-  $('#cfgUpload').addEventListener('click', async () => {
-    if (!cfg().url) return toast('Save the Web App URL first', 'warn');
-    flushRemote();
-    const months = Object.keys(localStorage).filter(k => /^meter_app_\d{4}-\d{2}$/.test(k)).map(k => k.slice(KEY.length)).sort();
-    if (!months.length) return toast('No saved data to upload', 'warn');
-    let ok = 0;
-    for (const m of months) {
-      const d = m === state.month ? state.data : readLocal(m);
-      if (d && await pushRemote(m, JSON.parse(JSON.stringify(d)), ver[m] || 0)) ok++;
-    }
-    toast(ok === months.length ? `✅ ${ok} month(s) uploaded` : `Uploaded ${ok} of ${months.length} months`, ok === months.length ? '' : 'warn');
-  });
-  $('#cfgPull').addEventListener('click', async () => {
-    if (!cfg().url) return toast('Save the Web App URL first', 'warn');
-    const m = state.month, r = await remoteGet(m);
-    if (r === undefined) return toast('Could not load from sheet', 'error');
-    if (r === null) return toast('Sheet has no data for this month', 'warn');
-    state.data = r; writeLocal(m, r);
-    try { localStorage.removeItem(dirtyKey(m)); } catch {}
-    renderAll(); toast('✅ Loaded from sheet');
-  });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushRemote(true); });
+
+
+  /* ---------- Cash counter ---------- */
+  const CC_DENOMS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
+  const CC_CUR = 'cash_counter_cur', CC_SAVED = 'cash_counter_saved';
+  const ccRead = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+  const ccWrite = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  let ccCounts = {};
+  const ccTotals = (c = ccCounts) => CC_DENOMS.reduce((a, d) => { const n = Math.max(0, Math.floor(num(c[d]))); a.pcs += n; a.amt += n * d; return a; }, { pcs: 0, amt: 0 });
+
+  function ccBuild() {
+    $('#ccRows').innerHTML = CC_DENOMS.map(d => `
+      <div class="cc-grid">
+        <span class="cc-den">${d}</span><span class="cc-x">×</span>
+        <input class="input cc-in" type="number" inputmode="numeric" enterkeyhint="next" min="0" step="1" data-d="${d}" placeholder="0" aria-label="Count of ${d}">
+        <span class="cc-eq">=</span><span class="cc-amt" id="ccA${d}">0</span>
+      </div>`).join('');
+  }
+  function ccRender(fromInputs) {
+    CC_DENOMS.forEach(d => {
+      const inp = $(`.cc-in[data-d="${d}"]`);
+      if (!fromInputs) inp.value = ccCounts[d] ? ccCounts[d] : '';
+      const n = Math.max(0, Math.floor(num(ccCounts[d])));
+      const a = $('#ccA' + d); a.textContent = (n * d).toLocaleString('en-US'); a.classList.toggle('on', n > 0);
+    });
+    const t = ccTotals();
+    $('#ccPieces').textContent = t.pcs.toLocaleString('en-US');
+    $('#ccTotal').textContent = taka(t.amt);
+  }
+  function ccPersist() { ccWrite(CC_CUR, { counts: ccCounts }); }
+  function ccText(counts, when) {
+    const t = ccTotals(counts);
+    const lines = CC_DENOMS.filter(d => num(counts[d]) > 0).map(d => `${d} × ${Math.floor(num(counts[d]))} = ${(Math.floor(num(counts[d])) * d).toLocaleString('en-US')}`);
+    return ['Cash Counter', when || new Date().toLocaleString(), '', ...lines, '', `Total pcs: ${t.pcs}`, `Total: ${taka(t.amt)}`].join('\n');
+  }
+  function ccRenderSaved() {
+    const list = ccRead(CC_SAVED, []);
+    $('#ccSavedCard').hidden = !list.length;
+    $('#ccSavedList').innerHTML = list.map((e, i) => `
+      <div class="cc-saved">
+        <div class="i"><b>${esc(e.when)}</b><small>${ccTotals(e.counts).pcs} pcs</small></div>
+        <span class="v">${taka(ccTotals(e.counts).amt)}</span>
+        <button data-load="${i}" aria-label="Open">↺</button>
+        <button class="del" data-del="${i}" aria-label="Delete">✕</button>
+      </div>`).join('');
+  }
+  (function ccInit() {
+    ccBuild();
+    const cur = ccRead(CC_CUR, { name: '', counts: {} });
+    ccCounts = cur.counts || {};
+    ccRender(false); ccRenderSaved();
+
+    $('#ccRows').addEventListener('input', e => {
+      const d = e.target.dataset.d; if (!d) return;
+      ccCounts[d] = e.target.value === '' ? 0 : Math.max(0, Math.floor(num(e.target.value)));
+      ccRender(true); ccPersist();
+    });
+    // Enter -> jump to next count box (last one just closes the keyboard)
+    $('#ccRows').addEventListener('keydown', e => {
+      if (e.key !== 'Enter' || !e.target.dataset.d) return;
+      e.preventDefault();
+      const ins = [...$$('.cc-in')], i = ins.indexOf(e.target);
+      if (i < ins.length - 1) { ins[i + 1].focus(); ins[i + 1].select(); } else e.target.blur();
+    });
+
+    $('#ccSave').addEventListener('click', () => {
+      if (!ccTotals().pcs) return toast('Enter some counts first', 'warn');
+      const list = ccRead(CC_SAVED, []);
+      list.unshift({ counts: { ...ccCounts }, when: new Date().toLocaleString([], { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) });
+      ccWrite(CC_SAVED, list.slice(0, 50));
+      ccRenderSaved(); toast('✅ Saved');
+    });
+    $('#ccShare').addEventListener('click', async () => {
+      if (!ccTotals().pcs) return toast('Nothing to share', 'warn');
+      const text = ccText(ccCounts);
+      try {
+        if (navigator.share) { await navigator.share({ text }); return; }
+        await navigator.clipboard.writeText(text); toast('✅ Copied to clipboard');
+      } catch (e) { if (e && e.name !== 'AbortError') toast('Could not share', 'error'); }
+    });
+    $('#ccClear').addEventListener('click', () => {
+      if (!ccTotals().pcs) return;
+      ccCounts = {}; ccRender(false); ccPersist(); toast('Cleared');
+    });
+    $('#ccSavedList').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      const list = ccRead(CC_SAVED, []);
+      if (b.dataset.load != null) {
+        const it = list[+b.dataset.load]; if (!it) return;
+        ccCounts = { ...it.counts }; ccRender(false); ccPersist();
+        window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Loaded');
+      } else if (b.dataset.del != null) {
+        list.splice(+b.dataset.del, 1); ccWrite(CC_SAVED, list); ccRenderSaved();
+      }
+    });
+  })();
 
   /* ---------- start ---------- */
   $('#monthPicker').value = state.month;
-  switchTab('meter');
+  {
+    const h = location.hash.slice(1), st = history.state;
+    const t0 = st && TABS.includes(st.tab) ? st.tab : (TABS.includes(h) ? h : 'meter');
+    H.idx = H.max = (st && st.idx) || 0;
+    try { history.replaceState({ idx: H.idx, tab: t0 }, '', '#' + t0); } catch {}
+    switchTab(t0); navUpdate();
+  }
   loadMonth(state.month).catch(() => toast('Could not load data', 'error'));
 })();
 </script>
