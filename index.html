@@ -5,11 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1d2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bill Manager">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Smart Bill Management</title>
 <style>
   :root{
     --brand:#34d399; --brand-2:#14b8a6; --brand-soft:rgba(52,211,153,.14);
-    --bg:#070b14; --surface:rgba(22,30,46,.62); --input:rgba(255,255,255,.05); --soft:rgba(255,255,255,.07); --nav:rgba(10,16,28,.72);
+    --bg:#070b14; --surface:rgba(22,30,46,.94); --input:rgba(255,255,255,.05); --soft:rgba(255,255,255,.07); --nav:rgba(10,16,28,.97);
     --line:rgba(255,255,255,.09); --text:#eaf0f7; --text-2:#b6c2d2; --muted:#8190a5;
     --ok:#34d399; --ok-soft:rgba(52,211,153,.14); --bad:#fb7185; --bad-soft:rgba(251,113,133,.14);
     --amber:#fbbf24; --amber-soft:rgba(251,191,36,.14);
@@ -122,7 +127,7 @@
   @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 
   /* ---------- Bottom navigation ---------- */
-  .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);background:var(--nav);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:50;box-shadow:0 -8px 24px rgba(16,24,20,.06)}
+  .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);background:var(--nav);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:50;box-shadow:0 -8px 24px rgba(16,24,20,.06)}
   .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:700;color:var(--muted);min-height:var(--nav-h);padding-top:2px}
   .nav-item svg{width:24px;height:24px}
   .nav-item.active{color:var(--brand)}
@@ -239,12 +244,12 @@
     box-shadow:0 12px 30px rgba(0,0,0,.35);
     padding-bottom:62px;
   }
-  .header::before{content:"";position:absolute;width:220px;height:220px;right:-60px;top:-90px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.35),transparent 70%);filter:blur(10px);pointer-events:none}
-  .header::after{content:"";position:absolute;width:180px;height:180px;left:-70px;bottom:-110px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.25),transparent 70%);filter:blur(10px);pointer-events:none}
+  .header::before{content:"";position:absolute;width:220px;height:220px;right:-60px;top:-90px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.35),transparent 70%);pointer-events:none}
+  .header::after{content:"";position:absolute;width:180px;height:180px;left:-70px;bottom:-110px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.25),transparent 70%);pointer-events:none}
   .header>*{position:relative;z-index:1}
   .brand{letter-spacing:.2px;color:#f1f7fb}
-  .logo{background:linear-gradient(135deg,rgba(52,211,153,.35),rgba(20,184,166,.18));border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 14px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-  .header .btn-sync{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  .logo{background:linear-gradient(135deg,rgba(52,211,153,.35),rgba(20,184,166,.18));border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .header .btn-sync{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14)}
   .header .btn-sync:active{background:rgba(255,255,255,.2)}
   body.search-open #searchToggle{background:rgba(52,211,153,.28);border-color:rgba(52,211,153,.5)}
   .header #fabAdd{background:linear-gradient(135deg,#34d399,#14b8a6);color:#04201a;border:0;box-shadow:0 6px 16px rgba(20,184,166,.35)}
@@ -253,7 +258,7 @@
   /* Glass surfaces */
   .monthbar,.stat,.cust,.sum-card,.search input,.empty{
     background:var(--surface);
-    -webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);
+    
     border:1px solid var(--line);
   }
   .monthbar{box-shadow:0 14px 32px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.06) inset}
@@ -281,7 +286,7 @@
   /* Bottom nav */
   .nav{
     background:var(--nav);
-    -webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);
+    
     border-top:1px solid rgba(255,255,255,.08);
     box-shadow:0 -10px 30px rgba(0,0,0,.4);
   }
@@ -289,10 +294,10 @@
   .fab{border-color:#0a101c}
 
   /* Popups */
-  .overlay{background:rgba(4,8,16,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .overlay{background:rgba(4,8,16,.55)}
   .sheet{
-    background:rgba(18,26,42,.86);
-    -webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%);
+    background:rgba(18,26,42,.98);
+    
     border:1px solid rgba(255,255,255,.10);
     box-shadow:0 -12px 50px rgba(0,0,0,.55);
   }
@@ -304,7 +309,7 @@
   /* Toast */
   .toast{
     background:rgba(234,240,247,.94);color:#07101c;
-    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    
     box-shadow:0 12px 28px rgba(0,0,0,.4);
   }
   .toast[data-type="warn"]{background:#f59e0b;color:#1c1100}
@@ -367,6 +372,24 @@
   .brand-t{font-size:15px;line-height:1.15;min-width:0}
   .hdr-actions{flex:none;gap:6px;align-items:center}
   .header .btn-sync{width:36px;height:36px;border-radius:11px}
+
+  /* ---------- Popup sheet: open at the top on mobile (keyboard never covers it) ---------- */
+  @media (max-width:639px){
+    .overlay{align-items:flex-start}
+    .sheet{width:calc(100% - 20px);margin-top:calc(10px + env(safe-area-inset-top,0px));border-radius:22px;padding:18px 18px 18px;transform:translateY(-24px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);box-shadow:0 14px 40px rgba(0,0,0,.55)}
+    .sheet::before{display:none}
+    .overlay.open .sheet{transform:none}
+  }
+
+  /* ---------- Search popup ---------- */
+  .sq-list{display:flex;flex-direction:column;gap:6px;margin-top:12px;max-height:50vh;max-height:50dvh;overflow-y:auto;overscroll-behavior:contain}
+  .sq-item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px;border-radius:12px;background:var(--soft);text-align:left}
+  .sq-item b{font-size:15px;font-weight:800;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sq-item small{flex:none;color:var(--muted);font-size:12px;font-weight:700}
+  .sq-item:active{background:rgba(52,211,153,.16)}
+  .sq-empty{color:var(--muted);font-size:13px;text-align:center;padding:16px 0}
+  .cust.flash{animation:flashcard 1.6s ease}
+  @keyframes flashcard{0%,65%{box-shadow:0 0 0 2px var(--brand)}100%{box-shadow:var(--shadow)}}
 </style>
 </head>
 <body>
@@ -509,6 +532,23 @@
       <span>Cash</span>
     </button>
   </nav>
+</div>
+
+<!-- Search popup -->
+<div class="overlay" id="ov-search" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sqTitle">
+    <div class="sheet-head">
+      <h3 id="sqTitle">Search customer</h3>
+      <button class="close" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="sqInput" placeholder="Search by name" autocomplete="off" enterkeyhint="search" aria-label="Search by name">
+    </label>
+    <div class="sq-list" id="sqList"></div>
+  </div>
 </div>
 
 <!-- Add / edit customer sheet -->
@@ -676,7 +716,7 @@
     const m = state.month;
     ver[m] = (ver[m] || 0) + 1;
     try { localStorage.setItem(dirtyKey(m), '1'); } catch {}
-    pending = { m, snap: JSON.parse(JSON.stringify(state.data)), v: ver[m] };
+    pending = { m, data: state.data, v: ver[m] };
     clearTimeout(remoteTimer);
     remoteTimer = setTimeout(() => flushRemote(), 1200);
   }
@@ -684,7 +724,7 @@
     if (!pending) return;
     clearTimeout(remoteTimer);
     const p = pending; pending = null;
-    pushRemote(p.m, p.snap, p.v, keepalive);
+    pushRemote(p.m, JSON.parse(JSON.stringify(p.data)), p.v, keepalive);
   }
 
   function saveCurrent() { writeLocal(state.month, state.data); scheduleRemote(); }
@@ -1108,9 +1148,37 @@
   // Sync + search
   $('#syncBtn').addEventListener('click', syncFromPrevious);
   $('#searchToggle').addEventListener('click', () => {
-    const open = document.body.classList.toggle('search-open');
-    if (open) $('#searchInput').focus();
-    else { $('#searchInput').value = ''; state.search = ''; renderMeter(); renderFixed(); }
+    $('#sqInput').value = '';
+    renderSearchResults();
+    openOverlay('ov-search');
+  });
+  function renderSearchResults() {
+    const q = $('#sqInput').value.trim().toLowerCase();
+    const hit = n => !q || String(n || '').toLowerCase().includes(q);
+    const rows = [];
+    state.data.customers.forEach((c, i) => { if (hit(c.name)) rows.push({ t: 'meter', i, name: c.name, amt: calc(c).bill }); });
+    state.data.fixedCustomers.forEach((f, i) => { if (hit(f.name)) rows.push({ t: 'fixed', i, name: f.name, amt: fixedBill(f) }); });
+    $('#sqList').innerHTML = rows.length
+      ? rows.map(r => `<button class="sq-item" data-t="${r.t}" data-i="${r.i}"><b>${esc(r.name)}</b><small>${r.t === 'meter' ? 'Meter' : 'Fixed'} · ${taka(r.amt)}</small></button>`).join('')
+      : '<div class="sq-empty">No customer found</div>';
+  }
+  $('#sqInput').addEventListener('input', renderSearchResults);
+  $('#sqInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); const f = $('#sqList .sq-item'); if (f) f.click(); }
+  });
+  $('#sqList').addEventListener('click', e => {
+    const b = e.target.closest('.sq-item');
+    if (!b) return;
+    const t = b.dataset.t, i = +b.dataset.i;
+    closeOverlay($('#ov-search'));
+    if (state.tab !== t) switchTab(t);
+    setTimeout(() => {
+      const card = $(`#${t === 'meter' ? 'meterList' : 'fixedList'} [data-row="${i}"]`);
+      if (!card) return;
+      card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      card.classList.add('flash');
+      setTimeout(() => card.classList.remove('flash'), 1700);
+    }, 150);
   });
   $('#searchInput').addEventListener('input', e => {
     state.search = e.target.value;
@@ -1224,6 +1292,15 @@
   $$('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeOverlay(o); }));
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') $$('.overlay.open').forEach(closeOverlay);
+  });
+
+  // Offline support: cache the app so it opens without internet
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+  // When internet comes back, push any edits made offline to the Google Sheet
+  window.addEventListener('online', () => {
+    try { if (localStorage.getItem(dirtyKey(state.month))) scheduleRemote(); } catch {}
   });
 
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushRemote(true); });
