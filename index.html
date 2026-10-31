@@ -360,19 +360,13 @@
   .cc-saved button.del{color:var(--bad)}
 
   /* ---------- Sticky header + back/forward ---------- */
-  .header{--hpb:62px;padding-bottom:var(--hpb);position:sticky;top:calc(-1 * (var(--hpb) - 14px));z-index:50}
+  .header{--hpb:24px;padding-bottom:var(--hpb);position:sticky;top:calc(-1 * (var(--hpb) - 14px));z-index:50}
   body[data-tab="cash"] .header{--hpb:30px;padding-bottom:var(--hpb)}
-  .monthbar{z-index:1}
+  .monthbar{z-index:1;margin-top:14px}
   .brand{min-width:0;flex:1;gap:9px}
   .brand-t{font-size:15px;line-height:1.15;min-width:0}
   .hdr-actions{flex:none;gap:6px;align-items:center}
   .header .btn-sync{width:36px;height:36px;border-radius:11px}
-  .navpair{display:flex;height:36px;border-radius:11px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);overflow:hidden}
-  .navpair button{width:32px;display:grid;place-items:center;color:#fff}
-  .navpair button+button{border-left:1px solid rgba(255,255,255,.12)}
-  .navpair button svg{width:18px;height:18px}
-  .navpair button:active:not(:disabled){background:rgba(255,255,255,.2)}
-  .navpair button:disabled{opacity:.35}
 </style>
 </head>
 <body>
@@ -386,10 +380,6 @@
       <span class="brand-t">Smart Bill Management</span>
     </div>
     <div class="hdr-actions">
-      <div class="navpair" role="group" aria-label="History navigation">
-        <button id="navBack" aria-label="Go back" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <button id="navFwd" aria-label="Go forward" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-      </div>
       <button class="btn-sync" id="searchToggle" aria-label="Search customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
       <button class="btn-sync" id="syncBtn" aria-label="Sync from previous month">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
@@ -1085,7 +1075,7 @@
   /* ---------- Back / forward navigation (like a phone) ---------- */
   const TABS = ['meter', 'fixed', 'summary', 'cash'];
   const H = { idx: 0, max: 0 };
-  const navUpdate = () => { $('#navBack').disabled = H.idx <= 0; $('#navFwd').disabled = H.idx >= H.max; };
+  const navUpdate = () => {};
   function go(t) {
     if (t === state.tab) return;
     H.idx++; H.max = H.idx;
@@ -1097,8 +1087,6 @@
     const st = e.state;
     if (st && TABS.includes(st.tab)) { H.idx = st.idx || 0; H.max = Math.max(H.max, H.idx); switchTab(st.tab); navUpdate(); }
   });
-  $('#navBack').addEventListener('click', () => history.back());
-  $('#navFwd').addEventListener('click', () => history.forward());
   $$('.nav-item[data-tab]').forEach(b => b.addEventListener('click', () => go(b.dataset.tab)));
   $('#fabAdd').addEventListener('click', () => openCust('add', state.tab === 'fixed' ? 'fixed' : 'meter'));
 
