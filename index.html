@@ -454,6 +454,14 @@
       </div>
 
       <div class="sum-card">
+        <h3>Advance</h3>
+        <div class="row"><span>Meter customers</span><b id="sAdvMeter">৳0</b></div>
+        <div class="row"><span>Fixed customers</span><b id="sAdvFixed">৳0</b></div>
+        <div class="row total"><span>Total advance</span><b id="sAdvTotal">৳0</b></div>
+        <div class="muted" style="margin-top:6px"><span id="sAdvCount">0</span> customer(s) gave advance</div>
+      </div>
+
+      <div class="sum-card">
         <h3>Profit / loss</h3>
         <div class="field" style="margin:12px 0 6px">
           <label for="officialBill">Official electricity bill (৳)</label>
@@ -791,7 +799,6 @@
         <div class="cust-head">
           <div class="cust-title">
             <button class="cust-name" data-act="edit" data-i="${i}" title="Tap to edit">${esc(f.name)}</button>
-            <div class="cust-sub">Monthly fixed bill</div>
           </div>
           <button class="pill ${paid ? 'paid' : 'unpaid'}" data-act="toggle" data-i="${i}" aria-pressed="${paid}">${paid ? 'Paid' : 'Unpaid'}</button>
         </div>
@@ -878,6 +885,14 @@
       fBilled += b;
       if (f.status === 'paid') fPaid += b;
     });
+
+    let advM = 0, advF = 0, advN = 0;
+    state.data.customers.forEach(c => { const a = num(c.advance); if (a > 0) { advM += a; advN++; } });
+    state.data.fixedCustomers.forEach(f => { const a = num(f.advance); if (a > 0) { advF += a; advN++; } });
+    $('#sAdvMeter').textContent = taka(advM);
+    $('#sAdvFixed').textContent = taka(advF);
+    $('#sAdvTotal').textContent = taka(advM + advF);
+    $('#sAdvCount').textContent = advN;
 
     const billed = mBilled + fBilled;
     const collected = mPaid + fPaid;
