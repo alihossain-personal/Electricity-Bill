@@ -94,7 +94,8 @@
   .reading:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(20,128,79,.14);background:var(--surface)}
   .reading.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
   .warn{font-size:12px;color:var(--bad);margin-top:8px;font-weight:600}
-  .reading.locked{background:rgba(255,255,255,.03);color:var(--text-2);border-style:dashed;cursor:pointer}
+  .reading.locked{background:rgba(255,255,255,.03);color:var(--text-2);border-color:transparent;box-shadow:none;cursor:pointer}
+  .reading:focus,.reading:focus-visible{outline:none}
 
   .cust-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);gap:8px}
   .chip{padding:7px 12px;border-radius:11px;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
@@ -475,8 +476,9 @@
         <h3>Collection</h3>
         <div class="progress"><i id="sBar"></i></div>
         <div class="muted"><span id="sPct">0</span>% collected</div>
-        <div class="row" style="margin-top:6px"><span class="good">Collected (paid)</span><b class="good" id="sCollected">৳0</b></div>
-        <div class="row"><span>Partial received (unpaid)</span><b id="sPartial">৳0</b></div>
+        <div class="row" style="margin-top:6px"><span>Full paid bills</span><b id="sFullPaid">৳0</b></div>
+        <div class="row"><span>Partial received</span><b id="sPartial">৳0</b></div>
+        <div class="row"><span class="good">Collected (total)</span><b class="good" id="sCollected">৳0</b></div>
         <div class="row"><span class="bad">Due (unpaid)</span><b class="bad" id="sDue">৳0</b></div>
       </div>
 
@@ -966,8 +968,10 @@
     $('#sFixed').textContent = taka(fBilled);
     $('#sBilled').textContent = taka(billed);
     $('#sCollected').textContent = taka(collected);
-    const partial = state.data.customers.filter(c => c.status !== 'paid').reduce((a, c) => a + recvMeter(c), 0)
-                  + state.data.fixedCustomers.filter(f => f.status !== 'paid').reduce((a, f) => a + recvFixed(f), 0);
+    const fullPaid = state.data.customers.filter(c => c.status === 'paid').reduce((a, c) => a + calc(c).bill, 0)
+                   + state.data.fixedCustomers.filter(f => f.status === 'paid').reduce((a, f) => a + fixedBill(f), 0);
+    const partial = collected - fullPaid;
+    $('#sFullPaid').textContent = taka(fullPaid);
     $('#sPartial').textContent = taka(partial);
     $('#sDue').textContent = taka(due);
     $('#sPct').textContent = pct;
@@ -1180,8 +1184,8 @@
     const q = $('#sqInput').value.trim().toLowerCase();
     const hit = n => !q || String(n || '').toLowerCase().includes(q);
     const rows = [];
-    state.data.customers.forEach((c, i) => { if (hit(c.name)) rows.push({ t: 'meter', i, name: c.name, amt: calc(c).bill }); });
-    state.data.fixedCustomers.forEach((f, i) => { if (hit(f.name)) rows.push({ t: 'fixed', i, name: f.name, amt: fixedBill(f) }); });
+    state.data.customers.forEach((c, i) => { if (hit(c.name)) rows.push({ t: 'meter', i, name: c.name, amt: remainMeter(c) }); });
+    state.data.fixedCustomers.forEach((f, i) => { if (hit(f.name)) rows.push({ t: 'fixed', i, name: f.name, amt: remainFixed(f) }); });
     $('#sqList').innerHTML = rows.length
       ? rows.map(r => `<button class="sq-item" data-t="${r.t}" data-i="${r.i}"><b>${esc(r.name)}</b><small>${r.t === 'meter' ? 'Meter' : 'Fixed'} · ${taka(r.amt)}</small></button>`).join('')
       : '<div class="sq-empty">No customer found</div>';
@@ -1211,7 +1215,7 @@
 
   // Select the whole value when a number field is focused (so typing replaces it)
   document.addEventListener('focusin', e => {
-    if (e.target.matches('input[type="number"]')) setTimeout(() => e.target.select(), 0);
+    if (e.target.matches('input[type="number"]') && !e.target.readOnly) setTimeout(() => e.target.select(), 0);
   });
 
   // Meter list: typing, Enter-to-next, toggle, edit
@@ -1238,11 +1242,11 @@
   meterList.addEventListener('focusout', e => {
     const el = e.target;
     if (!el.classList || !el.classList.contains('reading') || !el.dataset.field) return;
-    const k = el.dataset.i + '-' + el.dataset.field;
-    if (!unlocked.has(k)) return;
-    unlocked.delete(k);
-    if (hasVal(state.data.customers[+el.dataset.i]?.[el.dataset.field])) {
+    unlocked.delete(el.dataset.i + '-' + el.dataset.field);
+    if (hasVal(el.value)) {
       el.setAttribute('readonly', ''); el.classList.add('locked');
+      const c = state.data.customers[+el.dataset.i];
+      if (c) c[el.dataset.field] = el.value;
     }
   });
   meterList.addEventListener('keydown', e => {
