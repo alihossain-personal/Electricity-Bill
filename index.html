@@ -816,8 +816,7 @@
     if (last === 0) return `<span class="muted">Last month: ${fmt(last)} units</span>`;
     const pct = Math.round((cur - last) / last * 100);
     const cls = pct > 50 ? 'bad' : pct < 0 ? 'good' : 'muted';
-    const alert = pct > 50 ? ' · ⚠ Unusually high' : '';
-    return `<span class="${cls}">${pct > 0 ? '+' : ''}${pct}% vs last month (${fmt(last)})${alert}</span>`;
+    return `<span class="${cls}">${pct > 0 ? '+' : ''}${pct}% vs last month (${fmt(last)})</span>`;
   }
 
   /* ---------- rendering ---------- */
