@@ -94,11 +94,14 @@
   .reading:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(20,128,79,.14);background:var(--surface)}
   .reading.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
   .warn{font-size:12px;color:var(--bad);margin-top:8px;font-weight:600}
+  .reading.locked{background:rgba(255,255,255,.03);color:var(--text-2);border-style:dashed;cursor:pointer}
 
   .cust-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);gap:8px}
   .chip{padding:7px 12px;border-radius:11px;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
   .chip.units{background:var(--amber-soft);color:var(--amber)}
   .chip.bill{background:var(--ok-soft);color:var(--brand)}
+  .chip.part{background:var(--brand);color:#04201a;border:0;min-width:52px}
+  .chip.got{background:var(--amber-soft);color:var(--amber);border:0}
   .amt{font-size:22px;font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums}
   .muted{color:var(--muted);font-size:12px}
 
@@ -473,6 +476,7 @@
         <div class="progress"><i id="sBar"></i></div>
         <div class="muted"><span id="sPct">0</span>% collected</div>
         <div class="row" style="margin-top:6px"><span class="good">Collected (paid)</span><b class="good" id="sCollected">৳0</b></div>
+        <div class="row"><span>Partial received (unpaid)</span><b id="sPartial">৳0</b></div>
         <div class="row"><span class="bad">Due (unpaid)</span><b class="bad" id="sDue">৳0</b></div>
       </div>
 
@@ -636,12 +640,14 @@
         prev: c.prev ?? '',
         pres: c.pres ?? '',
         advance: c.advance ?? '',
+        part: num(c.part),
         status: c.status === 'paid' ? 'paid' : 'unpaid'
       })) : [],
       fixedCustomers: Array.isArray(d.fixedCustomers) ? d.fixedCustomers.map(f => ({
         name: String(f.name || ''),
         amount: num(f.amount),
         advance: f.advance ?? '',
+        part: num(f.part),
         status: f.status === 'paid' ? 'paid' : 'unpaid'
       })) : [],
       officialBill: num(d.officialBill)
@@ -750,6 +756,7 @@
 
   async function loadMonth(m) {
     flushRemote();
+    unlocked.clear();
     state.month = m;
     $('#monthPicker').value = m;
     $('#monthLabel').textContent = monthLabel(m);
@@ -780,6 +787,18 @@
   }
 
   const fixedBill = f => Math.max(num(f.amount) - num(f.advance), 0);
+
+  // Partial payments: typed amount received so far (field `part` on the customer)
+  const remainMeter = c => Math.max(calc(c).bill - num(c.part), 0);      // still to pay
+  const remainFixed = f => Math.max(fixedBill(f) - num(f.part), 0);
+  const recvMeter = c => c.status === 'paid' ? calc(c).bill : Math.min(num(c.part), calc(c).bill);  // money received
+  const recvFixed = f => f.status === 'paid' ? fixedBill(f) : Math.min(num(f.part), fixedBill(f));
+  // Meter readings lock automatically once they hold a value. Double-click unlocks one (not saved; re-locks on leaving the field).
+  const unlocked = new Set();
+  const isLocked = (c, i, f) => hasVal(c[f]) && !unlocked.has(i + '-' + f);
+
+  // Input on each card for the amount the customer has paid so far
+  const partChips = (x, i) => `<input class="adv" type="number" inputmode="decimal" enterkeyhint="next" step="any" min="0" placeholder="Got ৳" aria-label="Amount received" data-field="part" data-i="${i}" value="${esc(x.part)}">`;
 
   const matches = name => {
     const q = state.search.trim().toLowerCase();
@@ -815,11 +834,11 @@
         <div class="readings">
           <div>
             <label for="prev-${i}">Previous reading</label>
-            <input id="prev-${i}" class="reading" type="number" inputmode="decimal" enterkeyhint="next" step="any" min="0" data-field="prev" data-i="${i}" value="${esc(c.prev)}" placeholder="0">
+            <input id="prev-${i}" class="reading${isLocked(c, i, 'prev') ? ' locked' : ''}" ${isLocked(c, i, 'prev') ? 'readonly' : ''} type="number" inputmode="decimal" enterkeyhint="next" step="any" min="0" data-field="prev" data-i="${i}" value="${esc(c.prev)}" placeholder="0">
           </div>
           <div>
             <label for="pres-${i}">Current reading</label>
-            <input id="pres-${i}" class="reading${bad ? ' bad' : ''}" type="number" inputmode="decimal" enterkeyhint="next" step="any" min="0" data-field="pres" data-i="${i}" value="${esc(c.pres)}" placeholder="0">
+            <input id="pres-${i}" class="reading${bad ? ' bad' : ''}${isLocked(c, i, 'pres') ? ' locked' : ''}" ${isLocked(c, i, 'pres') ? 'readonly' : ''} type="number" inputmode="decimal" enterkeyhint="next" step="any" min="0" data-field="pres" data-i="${i}" value="${esc(c.pres)}" placeholder="0">
           </div>
         </div>
         <div class="warn" data-warn ${bad ? '' : 'hidden'}>Current reading is lower than previous</div>
@@ -827,7 +846,8 @@
         <div class="cust-foot">
           <span class="chip units" data-f="units">Units ${fmt(units)}</span>
           <input class="adv" type="number" inputmode="decimal" step="any" min="0" placeholder="Advance ৳" aria-label="Advance" data-field="advance" data-i="${i}" value="${esc(c.advance)}">
-          <span class="chip bill" data-f="bill">${taka(bill)}</span>
+          ${partChips(c, i)}
+          <span class="chip bill" data-f="bill">${taka(remainMeter(c))}</span>
         </div>
       </article>`;
   }
@@ -845,7 +865,8 @@
         <div class="cust-foot">
           <span class="chip units">Fixed ${taka(f.amount)}</span>
           <input class="adv" type="number" inputmode="decimal" enterkeyhint="next" step="any" min="0" placeholder="Advance ৳" aria-label="Advance" data-field="advance" data-i="${i}" value="${esc(f.advance)}">
-          <span class="chip bill" data-f="bill">${taka(fixedBill(f))}</span>
+          ${partChips(f, i)}
+          <span class="chip bill" data-f="bill">${taka(remainFixed(f))}</span>
         </div>
       </article>`;
   }
@@ -871,7 +892,7 @@
     state.data.customers.forEach(c => {
       const r = calc(c);
       units += r.units; bill += r.bill;
-      if (c.status !== 'paid') due += r.bill;
+      if (c.status !== 'paid') due += remainMeter(c);
     });
     $('#tUnits').textContent = fmt(units);
     $('#tBill').textContent = taka(bill);
@@ -884,7 +905,7 @@
     if (!card || !c) return;
     const r = calc(c);
     card.querySelector('[data-f="units"]').textContent = `Units ${fmt(r.units)}`;
-    card.querySelector('[data-f="bill"]').textContent = taka(r.bill);
+    card.querySelector('[data-f="bill"]').textContent = taka(remainMeter(c));
     card.querySelector('[data-field="pres"]').classList.toggle('bad', r.bad);
     card.querySelector('[data-warn]').hidden = !r.bad;
     card.querySelector('[data-cmp]').innerHTML = cmpHTML(c);
@@ -906,7 +927,7 @@
     all.forEach(f => {
       const b = fixedBill(f);
       total += b;
-      if (f.status === 'paid') paidCount++; else due += b;
+      if (f.status === 'paid') paidCount++; else due += remainFixed(f);
     });
     $('#fTotal').textContent = taka(total);
     $('#fPaid').textContent = `${paidCount}/${all.length}`;
@@ -918,12 +939,12 @@
     state.data.customers.forEach(c => {
       const b = calc(c).bill;
       mBilled += b;
-      if (c.status === 'paid') mPaid += b;
+      mPaid += recvMeter(c);
     });
     state.data.fixedCustomers.forEach(f => {
       const b = fixedBill(f);
       fBilled += b;
-      if (f.status === 'paid') fPaid += b;
+      fPaid += recvFixed(f);
     });
 
     let advM = 0, advF = 0, advN = 0;
@@ -945,6 +966,9 @@
     $('#sFixed').textContent = taka(fBilled);
     $('#sBilled').textContent = taka(billed);
     $('#sCollected').textContent = taka(collected);
+    const partial = state.data.customers.filter(c => c.status !== 'paid').reduce((a, c) => a + recvMeter(c), 0)
+                  + state.data.fixedCustomers.filter(f => f.status !== 'paid').reduce((a, f) => a + recvFixed(f), 0);
+    $('#sPartial').textContent = taka(partial);
     $('#sDue').textContent = taka(due);
     $('#sPct').textContent = pct;
     $('#sBar').style.width = pct + '%';
@@ -1203,6 +1227,24 @@
     renderSummary();
     saveCurrent();
   });
+  meterList.addEventListener('dblclick', e => {
+    const el = e.target;
+    if (!el.classList.contains('reading') || !el.dataset.field) return;
+    unlocked.add(el.dataset.i + '-' + el.dataset.field);
+    el.removeAttribute('readonly');
+    el.classList.remove('locked');
+    el.focus(); el.select();
+  });
+  meterList.addEventListener('focusout', e => {
+    const el = e.target;
+    if (!el.classList || !el.classList.contains('reading') || !el.dataset.field) return;
+    const k = el.dataset.i + '-' + el.dataset.field;
+    if (!unlocked.has(k)) return;
+    unlocked.delete(k);
+    if (hasVal(state.data.customers[+el.dataset.i]?.[el.dataset.field])) {
+      el.setAttribute('readonly', ''); el.classList.add('locked');
+    }
+  });
   meterList.addEventListener('keydown', e => {
     if (e.key !== 'Enter' || !e.target.dataset.field || !e.target.classList.contains('reading')) return;
     e.preventDefault();
@@ -1230,12 +1272,12 @@
   const fixedList = $('#fixedList');
   fixedList.addEventListener('input', e => {
     const el = e.target;
-    if (el.dataset.field !== 'advance') return;
+    if (el.dataset.field !== 'advance' && el.dataset.field !== 'part') return;
     const i = +el.dataset.i, f = state.data.fixedCustomers[i];
     if (!f) return;
-    f.advance = el.value;
+    f[el.dataset.field] = el.value;
     const card = fixedList.querySelector(`[data-row="${i}"]`);
-    if (card) card.querySelector('[data-f="bill"]').textContent = taka(fixedBill(f));
+    if (card) card.querySelector('[data-f="bill"]').textContent = taka(remainFixed(f));
     renderFixedTotals();
     renderSummary();
     saveCurrent();
